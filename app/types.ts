@@ -110,7 +110,7 @@ export interface WorkoutSet {
   completed: boolean;
 }
 
-// AQUÍ ESTÁ EL CAMBIO IMPORTANTE:
+// Actualizado para incluir notas y lógica de sustitución
 export interface WorkoutExercise extends Exercise {
   sets: WorkoutSet[];
   notes?: string;
@@ -135,8 +135,13 @@ export interface WeeklyWorkoutPlan {
   sessions: WorkoutSession[];
 }
 
+// Actualizado para incluir todos los campos que el motor de cardio necesita
 export interface ProtocolStep {
-  id: string;
-  instruction: string;
+  id?: string;
+  name: string;
+  instruction?: string;
+  description?: string;
+  duration_min?: number;
   duration_seconds?: number;
+  video_id?: string;
 }
