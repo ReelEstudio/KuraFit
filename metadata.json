@@ -1,0 +1,5 @@
+{
+  "name": "KuraFit",
+  "description": "A high-performance workout generation engine with strict injury-safety filtering and progressive overload logic.",
+  "requestFramePermissions": []
+}
