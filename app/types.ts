@@ -110,7 +110,7 @@ export interface WorkoutSet {
   completed: boolean;
 }
 
-// Actualizado para incluir notas y lógica de sustitución
+// 1. CORRECCIÓN PARA EL MOTOR DE ENTRENAMIENTO
 export interface WorkoutExercise extends Exercise {
   sets: WorkoutSet[];
   notes?: string;
@@ -133,15 +133,3 @@ export interface WeeklyWorkoutPlan {
   user_id: string;
   week_number: number;
   sessions: WorkoutSession[];
-}
-
-// Actualizado para incluir todos los campos que el motor de cardio necesita
-export interface ProtocolStep {
-  id?: string;
-  name: string;
-  instruction?: string;
-  description?: string;
-  duration_min?: number;
-  duration_seconds?: number;
-  video_id?: string;
-}
