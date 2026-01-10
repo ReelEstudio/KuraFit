@@ -110,7 +110,6 @@ export interface WorkoutSet {
   completed: boolean;
 }
 
-// 1. CORRECCIÓN PARA EL MOTOR DE ENTRENAMIENTO
 export interface WorkoutExercise extends Exercise {
   sets: WorkoutSet[];
   notes?: string;
@@ -133,3 +132,15 @@ export interface WeeklyWorkoutPlan {
   user_id: string;
   week_number: number;
   sessions: WorkoutSession[];
+}
+
+// ESTA ES LA PARTE QUE CORRIGE EL ERROR DE LA CAPTURA
+export interface ProtocolStep {
+  id?: string;
+  name: string;           // Campo obligatorio para el finisher
+  instruction?: string;
+  description?: string;   // Campo para el finisher
+  duration_min?: number;  // Campo para el finisher
+  duration_seconds?: number;
+  video_id?: string;      // Campo para el finisher
+}
