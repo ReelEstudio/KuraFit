@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -18,6 +17,8 @@ import {
   DietType,
   NutritionPlan
 } from './types';
+
+// AJUSTE DE RUTAS: Aseguramos que apunten a las carpetas dentro de 'app'
 import { WorkoutEngine } from './services/workoutEngine';
 import Calendar from './components/Calendar';
 import OnboardingForm from './components/OnboardingForm';
@@ -122,7 +123,6 @@ export default function Home() {
       nutrition
     };
     
-    // Guardado en Supabase (Opcional si las variables están configuradas)
     try {
       if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
         await supabase.from('profiles').upsert(userWithMetrics);
@@ -208,7 +208,6 @@ export default function Home() {
             userInjuries={user.injuries}
             onClose={() => setActiveSession(null)} 
             onComplete={(status) => {
-              // Lógica de guardado de sesión
               setActiveSession(null);
             }} 
           />
