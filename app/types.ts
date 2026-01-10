@@ -1,4 +1,3 @@
-
 export enum Difficulty {
   BEGINNER = 'beginner',
   INTERMEDIATE = 'intermediate',
@@ -130,4 +129,9 @@ export interface WeeklyWorkoutPlan {
   user_id: string;
   week_number: number;
   sessions: WorkoutSession[];
+}
+export interface ProtocolStep {
+  id: string;
+  instruction: string;
+  duration_seconds?: number;
 }
