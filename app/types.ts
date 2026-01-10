@@ -110,8 +110,12 @@ export interface WorkoutSet {
   completed: boolean;
 }
 
+// AQUÍ ESTÁ EL CAMBIO IMPORTANTE:
 export interface WorkoutExercise extends Exercise {
   sets: WorkoutSet[];
+  notes?: string;
+  is_substitute?: boolean;
+  replaced_exercise_name?: string;
 }
 
 export interface WorkoutSession {
@@ -130,6 +134,7 @@ export interface WeeklyWorkoutPlan {
   week_number: number;
   sessions: WorkoutSession[];
 }
+
 export interface ProtocolStep {
   id: string;
   instruction: string;
