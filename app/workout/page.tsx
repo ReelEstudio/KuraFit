@@ -1,15 +1,14 @@
 'use client';
 
 import React from 'react';
-import WorkoutPlayer from '../components/WorkoutPlayer'; // Ajustado según tu estructura
+import WorkoutPlayer from '../components/WorkoutPlayer'; 
 import { useRouter } from 'next/navigation';
-import { createClient } from '../../utils/supabase/client'; // Ajustado para subir dos niveles
+import { createClient } from '../../utils/supabase/client'; 
 
 export default function WorkoutPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // Datos de ejemplo para la sesión
   const sessionData = {
     id: '1',
     focus: 'STRENGTH',
@@ -30,7 +29,7 @@ export default function WorkoutPage() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Registramos la sesión en la base de datos
+        // 1. Guardamos en la base de datos
         await supabase.from('workout_sessions').insert({
           user_id: user.id,
           focus: sessionData.focus,
@@ -40,8 +39,9 @@ export default function WorkoutPage() {
     } catch (error) {
       console.error("Error al guardar sesión:", error);
     } finally {
-      // Regresamos al dashboard y refrescamos los datos
-      router.push('/dashboard');
+      // 2. CAMBIO CLAVE: Si tu panel está en la raíz, usa '/'
+      // Si realmente tienes una carpeta app/dashboard, deja '/dashboard'
+      router.push('/'); 
       router.refresh();
     }
   };
@@ -50,7 +50,7 @@ export default function WorkoutPage() {
     <WorkoutPlayer 
       session={sessionData as any} 
       userInjuries={[]} 
-      onClose={() => router.push('/dashboard')} 
+      onClose={() => router.push('/')} 
       onComplete={(status) => handleFinish(status as any)} 
     />
   );

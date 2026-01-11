@@ -1,6 +1,6 @@
-import { createClient } from '../../utils/supabase/server';
+import { createClient } from '../../utils/supabase/server'; // Sube dos niveles hasta la raíz
 import { redirect } from 'next/navigation';
-import ProfileDashboard from '../components/ProfileDashboard';
+import ProfileDashboard from '../components/ProfileDashboard'; // Ajustado a la carpeta components
 
 export default async function DashboardPage() {
   const supabase = await createClient();
