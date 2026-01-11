@@ -1,12 +1,12 @@
 'use client';
 
-import React, { Suspense } from 'react'; // 1. Importar Suspense
+import React, { Suspense } from 'react';
 import WorkoutPlayer from '../components/WorkoutPlayer'; 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client'; 
 
-// 2. Mover la lógica a un componente interno
-function WorkoutContent() {
+// 1. Este componente maneja la lógica y los hooks de URL
+function WorkoutDataHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -66,11 +66,19 @@ function WorkoutContent() {
   );
 }
 
-// 3. El export principal ahora envuelve el contenido en Suspense
+// 2. Este es el componente que Vercel ve primero. 
+// DEBE estar limpio para que el Prerendering no falle.
 export default function WorkoutPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#1a1f2e] flex items-center justify-center text-white">Cargando entrenamiento...</div>}>
-      <WorkoutContent />
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#1a1f2e] flex items-center justify-center text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="font-black italic uppercase tracking-widest text-xs">Cargando Sesión...</p>
+        </div>
+      </div>
+    }>
+      <WorkoutDataHandler />
     </Suspense>
   );
 }
