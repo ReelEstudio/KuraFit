@@ -27,7 +27,6 @@ export enum Difficulty {
   ADVANCED = 'ADVANCED'
 }
 
-// NUEVOS TIPOS AÑADIDOS PARA EL WORKOUT PLAYER
 export enum SessionCompletionStatus {
   FULL = 'full',
   EARLY = 'early'
@@ -38,6 +37,7 @@ export interface WorkoutSet {
   weight?: number;
   duration?: number;
   rest: number;
+  completed?: boolean; // <--- AÑADIDO: Necesario para WorkoutPlayer.tsx:44
 }
 
 export interface ProtocolStep {
@@ -45,9 +45,11 @@ export interface ProtocolStep {
   duration_min: number;
   description: string;
   video_id: string;
+  completed?: boolean; // <--- AÑADIDO: Necesario para controlar el progreso del calentamiento
 }
 
 export type MuscleGroup = string;
+
 export interface Injury {
   name: string;
   severity?: 'low' | 'medium' | 'high';
@@ -64,7 +66,7 @@ export interface WorkoutExercise {
   name: string;
   muscle_target: string;
   video_id: string;
-  sets: WorkoutSet[]; // Ahora usa el tipo WorkoutSet
+  sets: WorkoutSet[];
 }
 
 export interface WorkoutSession {
@@ -72,7 +74,8 @@ export interface WorkoutSession {
   date: string;
   focus: WorkoutFocus;
   exercises: WorkoutExercise[];
-  status: SessionCompletionStatus; // Ahora usa el enum
+  warmup: ProtocolStep[]; // <--- AÑADIDO: Necesario para WorkoutPlayer.tsx:47
+  status: SessionCompletionStatus;
   created_at: string;
 }
 
