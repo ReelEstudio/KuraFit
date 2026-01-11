@@ -13,18 +13,26 @@ const DIET_DETAILS: Record<string, { title: string; example: string }> = {
     title: "DIETA BALANCEADA (OMNÍVORA)",
     example: "Pollo a la plancha, arroz integral y brócoli."
   },
-  // ... puedes añadir las demás aquí
 };
 
 const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }) => {
   const [activeChartMetric, setActiveChartMetric] = useState<'weight' | 'fat' | 'muscle' | 'bmi'>('weight');
 
-  // Cálculos de métricas
+  // Cálculos de métricas de usuario
   const currentWeight = user?.weight_kg || 90;
   const bmiVal = useMemo(() => {
     const h = (user?.height_cm || 175) / 100;
     return (currentWeight / (h * h)).toFixed(1);
   }, [currentWeight, user?.height_cm]);
+
+  // LÓGICA DE SESIONES (SUPABASE)
+  const completedSessions = useMemo(() => 
+    user?.workout_sessions?.filter(s => s.status === 'full').length || 0
+  , [user?.workout_sessions]);
+
+  const earlySessions = useMemo(() => 
+    user?.workout_sessions?.filter(s => s.status === 'early').length || 0
+  , [user?.workout_sessions]);
 
   return (
     <div className="space-y-10 pb-20 bg-[#f8fafc] min-h-screen p-4 md:p-8">
@@ -40,36 +48,48 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
           </p>
         </div>
         <button 
-  onClick={() => window.location.href = '/workout'}
-  className="bg-[#1a1f2e] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:scale-105 transition-transform"
->
-  Entrenar Ahora
-</button>
+          onClick={() => window.location.href = '/workout'}
+          className="bg-[#1a1f2e] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:scale-105 transition-transform shadow-xl"
+        >
+          Entrenar Ahora
+        </button>
       </div>
 
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* COLUMNA IZQUIERDA: PERFIL Y MÉTRICAS */}
+        {/* COLUMNA IZQUIERDA: PERFIL Y CONTADORES */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white rounded-[40px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0,0.04)] border border-slate-50 flex flex-col items-center text-center">
+          <div className="bg-white rounded-[40px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-50 flex flex-col items-center text-center">
             <div className="w-24 h-24 bg-[#1a1f2e] rounded-[30px] flex items-center justify-center text-white text-4xl font-black mb-6">
               {user?.full_name?.charAt(0) || 'C'}
             </div>
             <h3 className="text-xl font-black text-[#1a1f2e] uppercase italic tracking-tight mb-8">
               {user?.full_name || 'Carlos Andrade'}
             </h3>
-            <div className="w-full bg-[#10b981] rounded-[25px] p-6 text-white shadow-lg shadow-emerald-100">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-80">Sesiones</p>
-              <p className="text-5xl font-black italic">0</p>
+
+            {/* CONTADORES DE SESIONES */}
+            <div className="w-full space-y-4">
+              {/* SESIONES COMPLETADAS */}
+              <div className="w-full bg-[#10b981] rounded-[28px] p-6 text-white shadow-lg shadow-emerald-100 transition-transform hover:scale-[1.02]">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">Sesiones Full</p>
+                <p className="text-5xl font-black italic leading-none">{completedSessions}</p>
+              </div>
+
+              {/* SESIONES TEMPRANAS */}
+              <div className="w-full bg-[#f59e0b] rounded-[28px] p-6 text-white shadow-lg shadow-orange-100 transition-transform hover:scale-[1.02]">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">Finalizadas Antes</p>
+                <p className="text-5xl font-black italic leading-none">{earlySessions}</p>
+              </div>
             </div>
-            <div className="w-full mt-6 pt-6 border-t border-slate-50 space-y-3">
+
+            <div className="w-full mt-8 pt-6 border-t border-slate-50 space-y-3">
               <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
                 <span>Nivel IA</span>
                 <span className="text-blue-600 italic">Beginner</span>
               </div>
               <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
                 <span>Lesiones</span>
-                <span className="text-orange-500">0 Activas</span>
+                <span className="text-orange-500">{user?.injuries?.length || 0} Activas</span>
               </div>
             </div>
           </div>
@@ -77,7 +97,6 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
 
         {/* COLUMNA CENTRAL: DASHBOARD DE MÉTRICAS */}
         <div className="lg:col-span-9 space-y-8">
-          {/* GRID DE CARDS SUPERIORES */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <MetricCard icon="⚖️" label="Peso" value={`${currentWeight} kg`} active={activeChartMetric === 'weight'} onClick={() => setActiveChartMetric('weight')} />
             <MetricCard icon="🔥" label="Grasa" value="20%" active={activeChartMetric === 'fat'} onClick={() => setActiveChartMetric('fat')} />
@@ -85,12 +104,12 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
             <MetricCard icon="📊" label="IMC" value={bmiVal} active={activeChartMetric === 'bmi'} onClick={() => setActiveChartMetric('bmi')} />
           </div>
 
-          {/* PANEL DE DETALLE (EL OSCURO) */}
+          {/* PANEL DE DETALLE */}
           <div className="bg-[#1a1f2e] rounded-[45px] p-10 text-white shadow-2xl relative overflow-hidden">
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10">
               <div>
                 <h4 className="text-3xl font-black italic uppercase mb-8 flex items-center gap-3">
-                  <span className="text-slate-500">⚖️</span> Peso Corporal
+                  <span className="text-slate-500">⚖️</span> {activeChartMetric.toUpperCase()}
                 </h4>
                 <div className="flex gap-4">
                   <div className="bg-white/5 border border-white/10 rounded-[30px] p-6 flex-1">
@@ -112,10 +131,8 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
         </div>
       </div>
 
-      {/* SECCIÓN INFERIOR: CALENDARIO Y SIGUIENTE ESTÍMULO */}
+      {/* SECCIÓN INFERIOR */}
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* CALENDARIO */}
         <div className="lg:col-span-8 bg-white rounded-[45px] p-10 shadow-sm border border-slate-50">
           <div className="flex justify-between items-center mb-10">
             <div>
@@ -130,7 +147,6 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
           <CalendarGrid />
         </div>
 
-        {/* SIGUIENTE ESTÍMULO */}
         <div className="lg:col-span-4 flex flex-col">
           <h3 className="text-sm font-black text-[#1a1f2e] uppercase italic mb-4 ml-4">Siguiente Estímulo</h3>
           <div className="bg-white rounded-[45px] p-4 shadow-xl border border-slate-50 flex-1 flex flex-col">
@@ -146,7 +162,7 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
               className="w-full py-6 bg-[#4361ee] hover:bg-blue-700 text-white rounded-[30px] font-black uppercase italic tracking-wider transition-all shadow-lg shadow-blue-200"
               >
               Iniciar Sesión
-              </button>
+            </button>
           </div>
         </div>
       </div>
@@ -154,7 +170,6 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
   );
 };
 
-// COMPONENTES AUXILIARES CON ESTILO ATÓMICO
 const MetricCard = ({ icon, label, value, active, onClick }: any) => (
   <button onClick={onClick} className={`p-6 rounded-[35px] border transition-all text-left flex flex-col justify-between h-40 ${active ? 'bg-white border-blue-500 ring-[6px] ring-blue-50 shadow-xl' : 'bg-white border-slate-50 shadow-sm hover:border-slate-200'}`}>
     <span className="text-2xl">{icon}</span>
