@@ -1,6 +1,6 @@
-import { createClient } from '../../utils/supabase/server'; // Sube dos niveles hasta la raíz
+import { createClient } from "../../utils/supabase/server"; 
 import { redirect } from 'next/navigation';
-import ProfileDashboard from '../components/ProfileDashboard'; // Ajustado a la carpeta components
+import ProfileDashboard from '../components/ProfileDashboard';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -11,8 +11,8 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // 2. Traer datos del usuario Y sus sesiones de entrenamiento
-  const { data: userData } = await supabase
+  // 2. Traer datos del usuario y sus sesiones
+  const { data: userData, error: dbError } = await supabase
     .from('users')
     .select(`
       *,
@@ -26,10 +26,13 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single();
 
-  // Función para manejar nuevas métricas (opcional por ahora)
+  if (dbError) {
+    console.error("Error de base de datos:", dbError.message);
+  }
+
   const handleAddMetric = async (metric: any) => {
     'use server';
-    // Lógica para guardar peso/grasa si lo deseas
+    // Lógica futura para métricas
   };
 
   return (
