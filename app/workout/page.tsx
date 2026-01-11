@@ -1,12 +1,15 @@
 'use client';
+
 import React from 'react';
 import WorkoutPlayer from '../components/WorkoutPlayer';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+// Cambiamos la importación aquí:
+import { createClient } from '@/utils/supabase/client'; 
 
 export default function WorkoutPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  // Inicializamos el cliente estándar de Supabase para Client Components
+  const supabase = createClient();
 
   const sessionData = {
     id: '1',
@@ -23,7 +26,7 @@ export default function WorkoutPage() {
     cooldown: [{ name: 'Estiramiento', video_id: 'Lp99_nE_TfU', description: 'Relaja' }]
   };
 
-  const handleSessionFinish = async (status: 'full' | 'early') => {
+  const handleFinish = async (status: 'full' | 'early') => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -35,10 +38,11 @@ export default function WorkoutPage() {
         });
       }
     } catch (error) {
-      console.error("Error guardando sesión:", error);
+      console.error("Error al guardar:", error);
     } finally {
-      // Siempre volvemos al dashboard, falle o no la base de datos
       router.push('/dashboard');
+      // Esto ayuda a que el dashboard pida los datos nuevos
+      router.refresh();
     }
   };
 
@@ -47,7 +51,7 @@ export default function WorkoutPage() {
       session={sessionData as any} 
       userInjuries={[]} 
       onClose={() => router.push('/dashboard')} 
-      onComplete={(status) => handleSessionFinish(status as any)} 
+      onComplete={(status) => handleFinish(status as any)} 
     />
   );
 }
