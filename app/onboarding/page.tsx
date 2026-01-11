@@ -59,6 +59,7 @@ export default function OnboardingPage() {
     if (!session) return;
 
     try {
+      // 1. Guardamos en la base de datos (usando los nombres de columna que creamos en el SQL)
       const { error } = await supabase.from('profiles').upsert({
         id: session.user.id,
         full_name: userData.full_name,
@@ -70,7 +71,15 @@ export default function OnboardingPage() {
       });
 
       if (error) throw error;
-      setUser(userData);
+
+      // 2. RELLENAR EL EMAIL AUTOMÁTICAMENTE
+      // Como no está en el formulario, lo tomamos de la sesión activa de Supabase
+      const userFinal = {
+        ...userData,
+        email: session.user.email 
+      };
+
+      setUser(userFinal as User);
       setStep('dashboard');
     } catch (e: any) { 
       alert("Error: " + e.message); 
@@ -78,7 +87,7 @@ export default function OnboardingPage() {
       setLoading(false);
     }
   };
-
+  
   if (loading) return <div className="p-10 text-center">Cargando...</div>;
 
   return (

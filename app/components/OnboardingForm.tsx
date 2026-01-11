@@ -73,7 +73,6 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Partial<User>>({
     full_name: '',
-    email: '',
     phone: '',
     age: 25,
     weight_kg: 70,
