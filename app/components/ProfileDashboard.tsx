@@ -25,7 +25,7 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
     return (currentWeight / (h * h)).toFixed(1);
   }, [currentWeight, user?.height_cm]);
 
-  // LÓGICA DE SESIONES (SUPABASE)
+  // LÓGICA DE CONTEO DE SESIONES DESDE SUPABASE
   const completedSessions = useMemo(() => 
     user?.workout_sessions?.filter(s => s.status === 'full').length || 0
   , [user?.workout_sessions]);
@@ -57,27 +57,27 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
 
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* COLUMNA IZQUIERDA: PERFIL Y CONTADORES */}
+        {/* COLUMNA IZQUIERDA: PERFIL Y CONTADORES REFORMADOS */}
         <div className="lg:col-span-3 space-y-6">
           <div className="bg-white rounded-[40px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-50 flex flex-col items-center text-center">
             <div className="w-24 h-24 bg-[#1a1f2e] rounded-[30px] flex items-center justify-center text-white text-4xl font-black mb-6">
               {user?.full_name?.charAt(0) || 'C'}
             </div>
-            <h3 className="text-xl font-black text-[#1a1f2e] uppercase italic tracking-tight mb-8">
+            <h3 className="text-xl font-black text-[#1a1f2e] uppercase italic tracking-tight mb-8 leading-tight">
               {user?.full_name || 'Carlos Andrade'}
             </h3>
 
-            {/* CONTADORES DE SESIONES */}
+            {/* CONTADORES DE SESIONES (CUADROS VERDE Y NARANJA) */}
             <div className="w-full space-y-4">
-              {/* SESIONES COMPLETADAS */}
+              {/* SESIONES COMPLETADAS - VERDE */}
               <div className="w-full bg-[#10b981] rounded-[28px] p-6 text-white shadow-lg shadow-emerald-100 transition-transform hover:scale-[1.02]">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">Sesiones Full</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-90">Sesiones Full</p>
                 <p className="text-5xl font-black italic leading-none">{completedSessions}</p>
               </div>
 
-              {/* SESIONES TEMPRANAS */}
+              {/* SESIONES TEMPRANAS - NARANJA */}
               <div className="w-full bg-[#f59e0b] rounded-[28px] p-6 text-white shadow-lg shadow-orange-100 transition-transform hover:scale-[1.02]">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-80">Finalizadas Antes</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1 opacity-90">Terminadas Antes</p>
                 <p className="text-5xl font-black italic leading-none">{earlySessions}</p>
               </div>
             </div>
@@ -104,7 +104,6 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
             <MetricCard icon="📊" label="IMC" value={bmiVal} active={activeChartMetric === 'bmi'} onClick={() => setActiveChartMetric('bmi')} />
           </div>
 
-          {/* PANEL DE DETALLE */}
           <div className="bg-[#1a1f2e] rounded-[45px] p-10 text-white shadow-2xl relative overflow-hidden">
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10">
               <div>
