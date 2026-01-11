@@ -8,6 +8,7 @@ export enum WorkoutFocus {
 export enum DietType {
   OMNIVORE = 'OMNIVORE',
   VEGAN = 'VEGAN',
+  VEGETARIAN = 'VEGETARIAN', // Añadido para que no dé error en OnboardingForm
   KETO = 'KETO',
   PALEO = 'PALEO'
 }
