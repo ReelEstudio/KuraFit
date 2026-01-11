@@ -34,10 +34,12 @@ export default function OnboardingPage() {
   useEffect(() => {
     const initApp = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (!session) {
         router.push('/login');
         return;
       }
+
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -45,8 +47,21 @@ export default function OnboardingPage() {
         .single();
 
       if (profile) {
-        setUser(profile as any);
+        // PARCHE: Inyectamos el email de la sesión en el perfil cargado
+        // para que el Dashboard no se rompa
+        const fullUser = {
+          ...profile,
+          email: session.user.email,
+          // Mapeamos weight/height si la base de datos los devuelve con nombres distintos a los que espera el Type
+          weight_kg: profile.weight,
+          height_cm: profile.height
+        };
+        
+        setUser(fullUser as any);
         setStep('dashboard');
+      } else {
+        // Si no hay perfil, lo mandamos a que acepte términos legales
+        setStep('legal');
       }
       setLoading(false);
     };
@@ -87,7 +102,7 @@ export default function OnboardingPage() {
       setLoading(false);
     }
   };
-  
+
   if (loading) return <div className="p-10 text-center">Cargando...</div>;
 
   return (
