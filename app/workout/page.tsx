@@ -1,22 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react'; // 1. Importar Suspense
 import WorkoutPlayer from '../components/WorkoutPlayer'; 
-import { useRouter, useSearchParams } from 'next/navigation'; // Añadido useSearchParams
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client'; 
 
-export default function WorkoutPage() {
+// 2. Mover la lógica a un componente interno
+function WorkoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
 
-  // Capturamos el tipo de la URL (ej: ?type=strength)
   const workoutType = searchParams.get('type')?.toUpperCase() || 'STRENGTH';
 
-  // Datos dinámicos según la elección
   const sessionData = {
     id: Date.now().toString(),
-    focus: workoutType, // Ahora es dinámico
+    focus: workoutType,
     warmup: [{ name: 'Movilidad Articular', video_id: 'q6v2vN2Z3E0', completed: false }],
     exercises: workoutType === 'METABOLIC' ? [
       {
@@ -42,9 +41,7 @@ export default function WorkoutPage() {
   const handleFinish = async (status: 'full' | 'early') => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (user) {
-        // Guardamos el enfoque real elegido
         await supabase.from('workout_sessions').insert({
           user_id: user.id,
           focus: workoutType, 
@@ -54,7 +51,6 @@ export default function WorkoutPage() {
     } catch (error) {
       console.error("Error al guardar sesión:", error);
     } finally {
-      // Redirigir al dashboard para ver el punto en el calendario
       router.push('/dashboard'); 
       router.refresh();
     }
@@ -67,5 +63,14 @@ export default function WorkoutPage() {
       onClose={() => router.push('/dashboard')} 
       onComplete={(status) => handleFinish(status as any)} 
     />
+  );
+}
+
+// 3. El export principal ahora envuelve el contenido en Suspense
+export default function WorkoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#1a1f2e] flex items-center justify-center text-white">Cargando entrenamiento...</div>}>
+      <WorkoutContent />
+    </Suspense>
   );
 }
