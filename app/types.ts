@@ -48,7 +48,10 @@ export interface ProtocolStep {
 }
 
 export type MuscleGroup = string;
-export type Injury = string;
+export interface Injury {
+  name: string;
+  severity?: 'low' | 'medium' | 'high';
+}
 
 export interface MetricEntry {
   date: string;

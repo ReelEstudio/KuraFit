@@ -83,7 +83,7 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({ user, onSelect, s
               <p className="text-amber-800 font-bold text-sm">Aviso de Seguridad Crítico</p>
               <p className="text-amber-700 text-xs mt-1">
                 Estás seleccionando una frecuencia superior a la recomendada para tu perfil médico. 
-                Esto incrementa el riesgo de agravamiento de tu lesión: <strong>{user.injuries[0].name}</strong>.
+                Esto incrementa el riesgo de agravamiento de tu lesión: <strong>{user.injuries[0]?.name || 'lesión registrada'}</strong>.
               </p>
             </div>
           </div>
