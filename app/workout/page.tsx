@@ -5,12 +5,15 @@ import WorkoutPlayer from '../components/WorkoutPlayer';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client'; 
 
-// 1. Este componente maneja la lógica y los hooks de URL
+// ESTA LÍNEA ES CLAVE para Next.js 16+:
+export const dynamic = 'force-dynamic';
+
 function WorkoutDataHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
 
+  // Obtenemos el tipo o usamos STRENGTH por defecto
   const workoutType = searchParams.get('type')?.toUpperCase() || 'STRENGTH';
 
   const sessionData = {
@@ -66,16 +69,11 @@ function WorkoutDataHandler() {
   );
 }
 
-// 2. Este es el componente que Vercel ve primero. 
-// DEBE estar limpio para que el Prerendering no falle.
 export default function WorkoutPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#1a1f2e] flex items-center justify-center text-white">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="font-black italic uppercase tracking-widest text-xs">Cargando Sesión...</p>
-        </div>
+      <div className="min-h-screen bg-[#1a1f2e] flex items-center justify-center text-white font-black italic">
+        CARGANDO SESIÓN...
       </div>
     }>
       <WorkoutDataHandler />
