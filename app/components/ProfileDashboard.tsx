@@ -39,9 +39,12 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
             Status biomecánico para <span className="text-slate-600">{user?.full_name || 'Carlos Andrade'}</span>
           </p>
         </div>
-        <button className="bg-[#1a1f2e] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:scale-105 transition-transform">
-          Entrenar Ahora
-        </button>
+        <button 
+  onClick={() => window.location.href = '/workout'}
+  className="bg-[#1a1f2e] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:scale-105 transition-transform"
+>
+  Entrenar Ahora
+</button>
       </div>
 
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -138,9 +141,12 @@ const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }
                 <svg width="180" height="180" viewBox="0 0 24 24" fill="white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               </div>
             </div>
-            <button className="w-full py-6 bg-[#4361ee] hover:bg-blue-700 text-white rounded-[30px] font-black uppercase italic tracking-wider transition-all shadow-lg shadow-blue-200">
+            <button 
+              onClick={() => window.location.href = '/workout'}
+              className="w-full py-6 bg-[#4361ee] hover:bg-blue-700 text-white rounded-[30px] font-black uppercase italic tracking-wider transition-all shadow-lg shadow-blue-200"
+              >
               Iniciar Sesión
-            </button>
+              </button>
           </div>
         </div>
       </div>
