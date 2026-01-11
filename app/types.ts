@@ -75,7 +75,8 @@ export interface WorkoutSession {
   focus: WorkoutFocus;
   exercises: WorkoutExercise[];
   warmup: ProtocolStep[];
-  cardio_finisher?: ProtocolStep; // <--- AÑADE ESTA LÍNEA (el ? es importante porque es opcional)
+  cardio_finisher?: ProtocolStep; 
+  cooldown: ProtocolStep[]; 
   status: SessionCompletionStatus;
   created_at: string;
 }
