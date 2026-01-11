@@ -1,19 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-// Importamos el cliente que creamos en lib para no repetir código
 import { supabase } from '../lib/supabase'; 
 import { useRouter } from 'next/navigation';
-import { 
-  User, 
-  MuscleGroup, 
-  Difficulty, 
-  Equipment,
-  WorkoutFocus,
-  WeeklyWorkoutPlan,
-  WorkoutSession,
-  MetricEntry,
-  NutritionPlan,
+import { 
+  User, 
+  MuscleGroup, 
+  Difficulty, 
+  Equipment,
+  WorkoutFocus,
+  WeeklyWorkoutPlan,
+  WorkoutSession,
   Exercise
 } from './types';
 
@@ -27,31 +24,28 @@ import LegalDisclaimer from './components/LegalDisclaimer';
 const STORAGE_KEY = 'kurafit_user_data';
 const LEGAL_KEY = 'kurafit_legal_accepted';
 
-// Mantenemos tus MOCK_EXERCISES igual...
 const MOCK_EXERCISES: Exercise[] = [
   { id: '1', name: 'Sentadilla con Barra', description: 'Mantén los pies a la anchura de los hombros.', muscle_target: MuscleGroup.LEGS, difficulty: Difficulty.ADVANCED, equipment: [Equipment.BARBELL], is_compound: true, substitute_id: '7', video_id: 'SW_C1A-rejs' },
-  // ... (el resto de tus ejercicios)
+  { id: '3', name: 'Press de Banca', description: 'Baja la barra hasta la parte media del pecho.', muscle_target: MuscleGroup.CHEST, difficulty: Difficulty.INTERMEDIATE, equipment: [Equipment.BARBELL], is_compound: true, video_id: 'rT7DgCr-3pg' },
 ];
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
-  const [plan, setPlan] = useState<WeeklyWorkoutPlan | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState<'legal' | 'onboarding' | 'dashboard'>('legal');
-  const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [plan, setPlan] = useState<WeeklyWorkoutPlan | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState<'legal' | 'onboarding' | 'dashboard'>('legal');
+  const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const initApp = async () => {
-      // 1. Verificar si hay sesión activa en Supabase
+  useEffect(() => {
+    const initApp = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        router.push('/login'); // Si no está logueado, fuera
+        router.push('/login');
         return;
       }
 
-      // 2. Revisar si ya tiene perfil en la base de datos
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
@@ -66,56 +60,28 @@ export default function Home() {
         const legalAccepted = localStorage.getItem(LEGAL_KEY);
         setStep(legalAccepted ? 'onboarding' : 'legal');
       }
-      
-      setLoading(false);
-    };
-    initApp();
-  }, []);
-
-  // Tu función de nutrición se queda igual...
-  const calculateNutrition = (u: Partial<User>): NutritionPlan => {
-    const tmb = (10 * (u.weight_kg || 70)) + (6.25 * (u.height_cm || 170)) - (5 * (u.age || 25)) + 5;
-    let multiplier = (u.sessions_per_week || 3) >= 4 ? 1.55 : 1.375;
-    let calories = tmb * multiplier;
-    if (u.goal === WorkoutFocus.METABOLIC) calories -= 400;
-    if (u.goal === WorkoutFocus.HYPERTROPHY) calories += 300;
-    return {
-      calories: Math.round(calories),
-      protein_g: Math.round((calories * 0.3) / 4),
-      carbs_g: Math.round((calories * 0.4) / 4),
-      fats_g: Math.round((calories * 0.3) / 9),
-      key_micros: ['Magnesio', 'Zinc', 'Vitamina D3']
+      setLoading(false);
     };
+    initApp();
+  }, [router]);
+
+  const generatePlan = async (userData: User) => {
+    const engine = new WorkoutEngine();
+    const newPlan = await engine.generateWeeklyPlan(userData, MOCK_EXERCISES);
+    setPlan(newPlan);
   };
 
-  const generatePlan = async (userData: User) => {
-    const engine = new WorkoutEngine();
-    const newPlan = await engine.generateWeeklyPlan(userData, MOCK_EXERCISES);
-    setPlan(newPlan);
-  };
+  const handleLegalAccept = () => {
+    localStorage.setItem(LEGAL_KEY, 'true');
+    setStep('onboarding');
+  };
 
-  const handleLegalAccept = () => {
-    localStorage.setItem(LEGAL_KEY, 'true');
-    setStep('onboarding');
-  };
-
-  const handleOnboardingComplete = async (userData: User) => {
-    setLoading(true);
-    
-    // Obtener el ID del usuario logueado actualmente
+  const handleOnboardingComplete = async (userData: User) => {
+    setLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const nutrition = calculateNutrition(userData);
-    const userWithMetrics: User = { 
-      ...userData, 
-      id: session.user.id, // IMPORTANTE: Usamos el ID de Supabase, no uno aleatorio
-      completed_sessions_count: 0, 
-      nutrition
-    };
-    
-    try {
-      // Guardamos en la tabla 'profiles' que creamos en el SQL Editor
+    try {
       const { error } = await supabase.from('profiles').upsert({
         id: session.user.id,
         full_name: userData.full_name,
@@ -128,18 +94,51 @@ export default function Home() {
 
       if (error) throw error;
 
-      setUser(userWithMetrics);
-      await generatePlan(userWithMetrics);
+      setUser(userData);
+      await generatePlan(userData);
       setStep('dashboard');
-    } catch (e: any) { 
-      alert("Error al guardar perfil: " + e.message); 
+    } catch (e: any) { 
+      alert("Error al guardar: " + e.message); 
     } finally {
       setLoading(false);
     }
-  };
+  };
 
-  // ... (El resto del render se mantiene igual)
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white">
+      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Sincronizando...</p>
+    </div>
+  );
+
   return (
-    // Pega aquí tu bloque de return original
+    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
+      <nav className="border-b bg-white h-16 flex items-center px-6 sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto w-full flex justify-between items-center">
+          <h1 className="text-xl font-black italic">KURA<span className="text-blue-600">FIT</span></h1>
+        </div>
+      </nav>
+
+      <main className="flex-1 max-w-6xl mx-auto w-full p-6">
+        {step === 'legal' && <LegalDisclaimer onAccept={handleLegalAccept} />}
+        {step === 'onboarding' && <OnboardingForm onComplete={handleOnboardingComplete} />}
+        {step === 'dashboard' && user && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-black italic uppercase">Tu Dashboard</h2>
+            <ProfileDashboard user={user} onAddMetric={() => {}} />
+            {plan && <Calendar sessions={plan.sessions} />}
+          </div>
+        )}
+      </main>
+
+      {activeSession && (
+        <WorkoutPlayer 
+          session={activeSession} 
+          userInjuries={user?.injuries || []} 
+          onClose={() => setActiveSession(null)} 
+          onComplete={() => setActiveSession(null)} 
+        />
+      )}
+    </div>
   );
 }
