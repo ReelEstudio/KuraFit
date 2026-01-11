@@ -74,7 +74,8 @@ export interface WorkoutSession {
   date: string;
   focus: WorkoutFocus;
   exercises: WorkoutExercise[];
-  warmup: ProtocolStep[]; // <--- AÑADIDO: Necesario para WorkoutPlayer.tsx:47
+  warmup: ProtocolStep[];
+  cardio_finisher?: ProtocolStep; // <--- AÑADE ESTA LÍNEA (el ? es importante porque es opcional)
   status: SessionCompletionStatus;
   created_at: string;
 }
