@@ -149,24 +149,24 @@ const WorkoutPlayer: React.FC<WorkoutPlayerProps> = ({ session, userInjuries, on
   };
 
   const VideoEmbed = ({ videoId }: { videoId?: string }) => {
-    if (!videoId) return (
-      <div className="w-full aspect-video rounded-3xl bg-slate-100 flex items-center justify-center mb-6">
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Media no disponible</p>
-      </div>
-    );
-    return (
-      <div className="relative w-full aspect-video rounded-3xl overflow-hidden mb-6 shadow-xl border border-slate-100 bg-black">
-        <iframe 
-          className="absolute inset-0 w-full h-full"
-          src={`https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0&showinfo=0&autoplay=0`}
-          title="Instrucción de ejercicio"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      </div>
-    );
-  };
+  if (!videoId) return (
+    <div className="w-full aspect-video rounded-3xl bg-slate-100 flex items-center justify-center mb-6">
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Media no disponible</p>
+    </div>
+  );
+  return (
+    <div className="relative w-full aspect-video rounded-3xl overflow-hidden mb-6 shadow-xl border border-slate-100 bg-black">
+      <iframe 
+        className="absolute inset-0 w-full h-full"
+        src={`https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&rel=0&showinfo=0&autoplay=0`}
+        title="Instrucción de ejercicio"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      ></iframe>
+    </div>
+  );
+};
 
   const renderWarmup = () => (
     <div className="space-y-4 animate-in fade-in duration-500">
