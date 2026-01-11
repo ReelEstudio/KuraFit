@@ -1,16 +1,15 @@
 'use client';
 
 import React from 'react';
-import WorkoutPlayer from '../components/WorkoutPlayer';
+import WorkoutPlayer from '../components/WorkoutPlayer'; // Ajustado según tu estructura
 import { useRouter } from 'next/navigation';
-// Cambiamos la importación aquí:
-import { createClient } from '@/utils/supabase/client'; 
+import { createClient } from '../../utils/supabase/client'; // Ajustado para subir dos niveles
 
 export default function WorkoutPage() {
   const router = useRouter();
-  // Inicializamos el cliente estándar de Supabase para Client Components
   const supabase = createClient();
 
+  // Datos de ejemplo para la sesión
   const sessionData = {
     id: '1',
     focus: 'STRENGTH',
@@ -31,6 +30,7 @@ export default function WorkoutPage() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        // Registramos la sesión en la base de datos
         await supabase.from('workout_sessions').insert({
           user_id: user.id,
           focus: sessionData.focus,
@@ -38,10 +38,10 @@ export default function WorkoutPage() {
         });
       }
     } catch (error) {
-      console.error("Error al guardar:", error);
+      console.error("Error al guardar sesión:", error);
     } finally {
+      // Regresamos al dashboard y refrescamos los datos
       router.push('/dashboard');
-      // Esto ayuda a que el dashboard pida los datos nuevos
       router.refresh();
     }
   };
