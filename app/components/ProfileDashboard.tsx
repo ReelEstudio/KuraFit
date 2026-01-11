@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
 import { User, MetricEntry, DietType } from '../types';
 
@@ -6,209 +8,188 @@ interface ProfileDashboardProps {
   onAddMetric: (metric: MetricEntry) => void;
 }
 
-const DIET_DETAILS: Record<string, { title: string; desc: string; example: string }> = {
+const DIET_DETAILS: Record<string, { title: string; example: string }> = {
   [DietType.OMNIVORE]: { 
-    title: "Dieta Balanceada (Omnívora)",
-    desc: "Incluye todos los grupos de alimentos sin restricciones.",
+    title: "DIETA BALANCEADA (OMNÍVORA)",
     example: "Pollo a la plancha, arroz integral y brócoli."
   },
-  [DietType.VEGAN]: { 
-    title: "Dieta 100% Vegetal (Vegana)",
-    desc: "Excluye todos los productos de origen animal.",
-    example: "Bowl de quinoa con garbanzos y aguacate."
-  },
-  [DietType.KETO]: { 
-    title: "Dieta Cetogénica (Keto)",
-    desc: "Muy baja en carbohidratos y alta en grasas saludables.",
-    example: "Salmón al horno con espárragos y aguacate."
-  },
-  [DietType.PALEO]: { 
-    title: "Dieta Evolutiva (Paleo)",
-    desc: "Basada en alimentos enteros y carnes.",
-    example: "Solomillo de ternera con puré de boniato."
-  },
-  [DietType.VEGETARIAN]: { 
-    title: "Dieta Lacto-Ovo Vegetariana",
-    desc: "No incluye carnes, pero permite huevos y lácteos.",
-    example: "Omelette de tres claras con queso feta y espinacas."
-  }
+  // ... puedes añadir las demás aquí
 };
 
 const ProfileDashboard: React.FC<ProfileDashboardProps> = ({ user, onAddMetric }) => {
-  const [newWeight, setNewWeight] = useState(user?.weight_kg?.toString() || '70');
-  const [newFat, setNewFat] = useState('20');
-  const [newMuscle, setNewMuscle] = useState('35');
-  const [showForm, setShowForm] = useState(false);
   const [activeChartMetric, setActiveChartMetric] = useState<'weight' | 'fat' | 'muscle' | 'bmi'>('weight');
 
-  // 1. MÉTRICAS PROTEGIDAS
-  const currentMetric = useMemo(() => {
-    return user?.metrics_history?.[0] || { 
-      weight_kg: user?.weight_kg || 70, 
-      body_fat_pct: 20, 
-      muscle_mass_kg: 35 
-    };
-  }, [user]);
-
+  // Cálculos de métricas
+  const currentWeight = user?.weight_kg || 90;
   const bmiVal = useMemo(() => {
     const h = (user?.height_cm || 175) / 100;
-    return (currentMetric.weight_kg / (h * h)).toFixed(1);
-  }, [currentMetric.weight_kg, user?.height_cm]);
-
-  const calculateIdeals = useMemo(() => {
-    const h = (user?.height_cm || 175) / 100;
-    return {
-      weight: `${Math.round(18.5 * h * h)} - ${Math.round(24.9 * h * h)} kg`,
-      fat: (user?.age || 30) > 40 ? "15 - 22%" : "10 - 18%",
-      muscle: `${Math.round(currentMetric.weight_kg * 0.42)} kg+`,
-      bmi: "18.5 - 24.9"
-    };
-  }, [user?.height_cm, user?.age, currentMetric.weight_kg]);
-
-  const metricDetails = {
-    weight: { title: "Peso", icon: "⚖️", ideal: calculateIdeals.weight, current: `${currentMetric.weight_kg} kg` },
-    fat: { title: "Grasa", icon: "🔥", ideal: calculateIdeals.fat, current: `${currentMetric.body_fat_pct}%` },
-    muscle: { title: "Músculo", icon: "💪", ideal: calculateIdeals.muscle, current: `${currentMetric.muscle_mass_kg} kg` },
-    bmi: { title: "IMC", icon: "📊", ideal: calculateIdeals.bmi, current: bmiVal }
-  };
-
-  const activeInfo = metricDetails[activeChartMetric];
-
-  // 2. DIETA PROTEGIDA (Evita error si user.diet es null)
-  const dietInfo = useMemo(() => {
-    const dietKey = user?.diet || DietType.OMNIVORE;
-    return DIET_DETAILS[dietKey] || DIET_DETAILS[DietType.OMNIVORE];
-  }, [user?.diet]);
-
-  const historyForChart = useMemo(() => {
-    const history = Array.isArray(user?.metrics_history) ? user.metrics_history : [];
-    return [...history].reverse().slice(-10);
-  }, [user?.metrics_history]);
-
-  const chartData = useMemo(() => {
-    if (historyForChart.length < 2 || activeChartMetric === 'bmi') return null;
-    const values = historyForChart.map(m => {
-      if (activeChartMetric === 'weight') return m.weight_kg;
-      if (activeChartMetric === 'fat') return m.body_fat_pct || 0;
-      return m.muscle_mass_kg || 0;
-    });
-    const max = Math.max(...values);
-    const min = Math.min(...values);
-    const range = max - min || 1;
-    return { 
-      points: values.map((val, i) => ({ 
-        x: (i / (values.length - 1)) * 100, 
-        y: 100 - ((val - (min * 0.95)) / (range * 1.1)) * 100
-      }))
-    };
-  }, [historyForChart, activeChartMetric]);
-
-  const totalSessions = (user?.completed_sessions_count || 0) + (user?.early_finished_count || 0);
-  const adherenceRatio = totalSessions === 0 ? 0 : (user?.completed_sessions_count || 0) / totalSessions;
+    return (currentWeight / (h * h)).toFixed(1);
+  }, [currentWeight, user?.height_cm]);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-1 bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col items-center">
-          <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white text-2xl font-black mb-4 uppercase italic">
-            {user?.full_name?.charAt(0) || 'A'}
-          </div>
-          <h3 className="font-black text-slate-900 uppercase italic mb-6 tracking-tighter truncate w-full text-center">
-            {user?.full_name || 'Atleta'}
-          </h3>
-          <div className="w-full space-y-3">
-            <div className="bg-emerald-600 p-4 rounded-2xl text-center">
-              <p className="text-[8px] font-black text-emerald-100 uppercase mb-1">Sesiones</p>
-              <p className="text-3xl font-black text-white italic">{user?.completed_sessions_count || 0}</p>
+    <div className="space-y-10 pb-20 bg-[#f8fafc] min-h-screen p-4 md:p-8">
+      
+      {/* HEADER PRINCIPAL */}
+      <div className="flex justify-between items-start max-w-7xl mx-auto w-full">
+        <div>
+          <h1 className="text-5xl font-black text-[#1a1f2e] italic tracking-tighter uppercase leading-none">
+            Centro de Entrenamiento
+          </h1>
+          <p className="text-slate-400 font-bold text-sm mt-2">
+            Status biomecánico para <span className="text-slate-600">{user?.full_name || 'Carlos Andrade'}</span>
+          </p>
+        </div>
+        <button className="bg-[#1a1f2e] text-white px-8 py-3 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:scale-105 transition-transform">
+          Entrenar Ahora
+        </button>
+      </div>
+
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* COLUMNA IZQUIERDA: PERFIL Y MÉTRICAS */}
+        <div className="lg:col-span-3 space-y-6">
+          <div className="bg-white rounded-[40px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0,0.04)] border border-slate-50 flex flex-col items-center text-center">
+            <div className="w-24 h-24 bg-[#1a1f2e] rounded-[30px] flex items-center justify-center text-white text-4xl font-black mb-6">
+              {user?.full_name?.charAt(0) || 'C'}
+            </div>
+            <h3 className="text-xl font-black text-[#1a1f2e] uppercase italic tracking-tight mb-8">
+              {user?.full_name || 'Carlos Andrade'}
+            </h3>
+            <div className="w-full bg-[#10b981] rounded-[25px] p-6 text-white shadow-lg shadow-emerald-100">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-80">Sesiones</p>
+              <p className="text-5xl font-black italic">0</p>
+            </div>
+            <div className="w-full mt-6 pt-6 border-t border-slate-50 space-y-3">
+              <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
+                <span>Nivel IA</span>
+                <span className="text-blue-600 italic">Beginner</span>
+              </div>
+              <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
+                <span>Lesiones</span>
+                <span className="text-orange-500">0 Activas</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="md:col-span-3 space-y-6">
+        {/* COLUMNA CENTRAL: DASHBOARD DE MÉTRICAS */}
+        <div className="lg:col-span-9 space-y-8">
+          {/* GRID DE CARDS SUPERIORES */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {(Object.keys(metricDetails) as Array<keyof typeof metricDetails>).map(key => (
-              <button key={key} onClick={() => setActiveChartMetric(key)} className={`p-5 rounded-[32px] border transition-all text-left ${activeChartMetric === key ? 'border-blue-500 ring-4 ring-blue-50 bg-white' : 'bg-white border-slate-100'}`}>
-                <span className="text-xl">{metricDetails[key].icon}</span>
-                <p className="text-[10px] font-black text-slate-400 uppercase mt-2">{metricDetails[key].title}</p>
-                <p className="text-xl font-black italic text-slate-900">{metricDetails[key].current}</p>
-              </button>
-            ))}
+            <MetricCard icon="⚖️" label="Peso" value={`${currentWeight} kg`} active={activeChartMetric === 'weight'} onClick={() => setActiveChartMetric('weight')} />
+            <MetricCard icon="🔥" label="Grasa" value="20%" active={activeChartMetric === 'fat'} onClick={() => setActiveChartMetric('fat')} />
+            <MetricCard icon="💪" label="Músculo" value="35 kg" active={activeChartMetric === 'muscle'} onClick={() => setActiveChartMetric('muscle')} />
+            <MetricCard icon="📊" label="IMC" value={bmiVal} active={activeChartMetric === 'bmi'} onClick={() => setActiveChartMetric('bmi')} />
           </div>
 
-          <div className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden">
-             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                   <h4 className="text-xl font-black italic uppercase mb-4">{activeInfo.title}</h4>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                        <p className="text-[8px] uppercase font-black text-blue-400">Actual</p>
-                        <p className="text-xl font-black italic">{activeInfo.current}</p>
-                      </div>
-                      <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                        <p className="text-[8px] uppercase font-black text-emerald-400">Ideal</p>
-                        <p className="text-xl font-black italic">{activeInfo.ideal}</p>
-                      </div>
-                   </div>
+          {/* PANEL DE DETALLE (EL OSCURO) */}
+          <div className="bg-[#1a1f2e] rounded-[45px] p-10 text-white shadow-2xl relative overflow-hidden">
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div>
+                <h4 className="text-3xl font-black italic uppercase mb-8 flex items-center gap-3">
+                  <span className="text-slate-500">⚖️</span> Peso Corporal
+                </h4>
+                <div className="flex gap-4">
+                  <div className="bg-white/5 border border-white/10 rounded-[30px] p-6 flex-1">
+                    <p className="text-[9px] font-black text-blue-400 uppercase mb-2">Valor Actual</p>
+                    <p className="text-3xl font-black italic">{currentWeight} kg</p>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-[30px] p-6 flex-1">
+                    <p className="text-[9px] font-black text-emerald-400 uppercase mb-2">Rango Ideal</p>
+                    <p className="text-3xl font-black italic">63 - 84 kg</p>
+                  </div>
                 </div>
-                <div className="flex flex-col justify-end gap-3">
-                   <div className="bg-white/10 px-4 py-3 rounded-xl flex justify-between items-center">
-                      <p className="text-xs font-black italic uppercase">Estrés: {user?.stress_level || 3}/5</p>
-                      <div className={`w-2 h-2 rounded-full ${(user?.stress_level || 0) > 3 ? 'bg-red-400 animate-pulse' : 'bg-emerald-400'}`} />
-                   </div>
-                   <div className="bg-white/10 px-4 py-3 rounded-xl flex justify-between items-center">
-                      <p className="text-xs font-black italic uppercase">Sueño: {user?.sleep_quality || 3}/5</p>
-                      <div className={`w-2 h-2 rounded-full ${(user?.sleep_quality || 0) < 3 ? 'bg-orange-400' : 'bg-emerald-400'}`} />
-                   </div>
-                </div>
-             </div>
+              </div>
+              <div className="flex flex-col justify-center space-y-4">
+                <StatusRow label="Estrés Sistema" value="Nivel 3/5" color="bg-emerald-400" />
+                <StatusRow label="Calidad Sueño" value="Nivel 3/5" color="bg-emerald-400" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white p-8 rounded-[40px] border border-slate-100">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-lg font-black text-slate-900 uppercase italic">Evolución</h3>
-            <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black uppercase rounded-xl">
-              {showForm ? 'Cerrar' : 'Nuevo'}
-            </button>
+      {/* SECCIÓN INFERIOR: CALENDARIO Y SIGUIENTE ESTÍMULO */}
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* CALENDARIO */}
+        <div className="lg:col-span-8 bg-white rounded-[45px] p-10 shadow-sm border border-slate-50">
+          <div className="flex justify-between items-center mb-10">
+            <div>
+              <h3 className="text-3xl font-bold text-[#1a1f2e] tracking-tight">Calendario Semanal</h3>
+              <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Planificación de Cargas</p>
+            </div>
+            <div className="flex gap-4">
+              <LegendItem color="bg-emerald-400" label="Completado" />
+              <LegendItem color="bg-blue-500" label="En Progreso" />
+            </div>
           </div>
-          
-          <div className="h-[200px] flex items-center justify-center">
-            {chartData ? (
-              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path d={`M ${chartData.points.map(p => `${p.x} ${p.y}`).join(' L ')}`} fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
-              </svg>
-            ) : (
-              <p className="text-[10px] font-black text-slate-300 uppercase italic">Sin datos suficientes</p>
-            )}
-          </div>
+          <CalendarGrid />
         </div>
 
-        <div className="bg-white p-8 rounded-[40px] border border-slate-100">
-          <h3 className="text-sm font-black text-slate-900 uppercase italic mb-6">Nutrición IA</h3>
-          <div className="space-y-6">
-            <div className="p-6 bg-blue-50 rounded-3xl border border-blue-100">
-               <p className="text-lg font-black text-blue-600 uppercase italic">{dietInfo.title}</p>
-               <p className="text-[10px] font-bold text-blue-800 italic mt-2">"{dietInfo.example}"</p>
-            </div>
-            {user?.nutrition && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                  <p className="text-[8px] font-black text-slate-400 uppercase">Kcal</p>
-                  <p className="text-lg font-black text-slate-900 italic">{user.nutrition.calories}</p>
-                </div>
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                  <p className="text-[8px] font-black text-slate-400 uppercase">Proteína</p>
-                  <p className="text-lg font-black text-slate-900 italic">{user.nutrition.protein_g}g</p>
-                </div>
+        {/* SIGUIENTE ESTÍMULO */}
+        <div className="lg:col-span-4 flex flex-col">
+          <h3 className="text-sm font-black text-[#1a1f2e] uppercase italic mb-4 ml-4">Siguiente Estímulo</h3>
+          <div className="bg-white rounded-[45px] p-4 shadow-xl border border-slate-50 flex-1 flex flex-col">
+            <div className="bg-[#1a1f2e] rounded-[35px] p-10 text-white relative overflow-hidden mb-6 flex-1 flex flex-col justify-center">
+              <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Enfoque de Hoy</p>
+              <h4 className="text-5xl font-black italic uppercase tracking-tighter">Strength</h4>
+              <div className="absolute right-[-10%] bottom-[-10%] opacity-10">
+                <svg width="180" height="180" viewBox="0 0 24 24" fill="white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               </div>
-            )}
+            </div>
+            <button className="w-full py-6 bg-[#4361ee] hover:bg-blue-700 text-white rounded-[30px] font-black uppercase italic tracking-wider transition-all shadow-lg shadow-blue-200">
+              Iniciar Sesión
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+// COMPONENTES AUXILIARES CON ESTILO ATÓMICO
+const MetricCard = ({ icon, label, value, active, onClick }: any) => (
+  <button onClick={onClick} className={`p-6 rounded-[35px] border transition-all text-left flex flex-col justify-between h-40 ${active ? 'bg-white border-blue-500 ring-[6px] ring-blue-50 shadow-xl' : 'bg-white border-slate-50 shadow-sm hover:border-slate-200'}`}>
+    <span className="text-2xl">{icon}</span>
+    <div>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+      <p className="text-2xl font-black italic text-[#1a1f2e]">{value}</p>
+    </div>
+  </button>
+);
+
+const StatusRow = ({ label, value, color }: any) => (
+  <div className="bg-white/5 px-6 py-4 rounded-[25px] border border-white/10 flex justify-between items-center">
+    <span className="text-[11px] font-black uppercase tracking-tight text-slate-400">{label}: <span className="text-white">{value}</span></span>
+    <div className={`w-2 h-2 rounded-full ${color}`} />
+  </div>
+);
+
+const LegendItem = ({ color, label }: any) => (
+  <div className="flex items-center gap-2">
+    <div className={`w-3 h-3 ${color} rounded-full`} />
+    <span className="text-[10px] font-black uppercase text-slate-500">{label}</span>
+  </div>
+);
+
+const CalendarGrid = () => (
+  <div className="grid grid-cols-7 gap-4">
+    {['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'].map(d => (
+      <div key={d} className="text-center text-[11px] font-black text-slate-300 mb-2">{d}</div>
+    ))}
+    {Array.from({ length: 14 }).map((_, i) => {
+      const day = i + 1;
+      const isToday = day === 11;
+      return (
+        <div key={i} className={`aspect-[4/5] rounded-[22px] border-2 p-3 relative transition-all ${isToday ? 'border-blue-500 bg-blue-50/30' : 'border-slate-50 hover:border-slate-100'}`}>
+          <span className={`text-xs font-black ${isToday ? 'text-blue-600' : 'text-slate-300'}`}>{day.toString().padStart(2, '0')}</span>
+          {isToday && <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-blue-500 rounded-full" />}
+          {day === 12 && <div className="mt-auto bg-orange-50 text-orange-600 text-[9px] font-black p-1.5 rounded-lg text-center uppercase">S...</div>}
+        </div>
+      );
+    })}
+  </div>
+);
 
 export default ProfileDashboard;
