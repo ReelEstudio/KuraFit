@@ -19,19 +19,18 @@ export default function WorkoutClient() {
 
   const workoutType = searchParams.get('type')?.toUpperCase() || 'STRENGTH';
 
-  // Datos de la sesión (puedes expandir esto luego)
   const sessionData = {
     id: Date.now().toString(),
     focus: workoutType,
-    warmup: [{ name: 'Movilidad', video_id: 'q6v2vN2Z3E0', completed: false }],
+    warmup: [{ name: 'Movilidad Articular', video_id: 'q6v2vN2Z3E0', completed: false }],
     exercises: [{
       id: 'ex1',
-      name: workoutType === 'METABOLIC' ? 'Burpees' : 'Sentadilla Goblet',
+      name: workoutType === 'METABOLIC' ? 'Burpees Explosivos' : 'Sentadilla Goblet',
       muscle_target: 'Full Body',
       video_id: 'MeIi6Y7a_3M',
       sets: [{ reps: '12', completed: false }]
     }],
-    cardio_finisher: { name: 'Cardio', video_id: 'UpH7rm0cYbM', description: '30s' },
+    cardio_finisher: { name: 'Cardio Final', video_id: 'UpH7rm0cYbM', description: '30s' },
     cooldown: [{ name: 'Estiramiento', video_id: 'Lp99_nE_TfU', description: 'Relaja' }]
   };
 
@@ -48,6 +47,7 @@ export default function WorkoutClient() {
     } catch (error) {
       console.error("Error:", error);
     } finally {
+      // PUNTO 4 CORREGIDO: Redirigir al dashboard, no al login
       router.push('/dashboard'); 
       router.refresh();
     }
@@ -56,7 +56,7 @@ export default function WorkoutClient() {
   return (
     <WorkoutPlayer 
       session={sessionData as any} 
-      userInjuries={[]} // Corregido: Ahora pasamos el array vacío que pedía el error
+      userInjuries={[]} 
       onClose={() => router.push('/dashboard')} 
       onComplete={(status: any) => handleFinish(status)} 
     />
