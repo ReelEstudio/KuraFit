@@ -1,4 +1,4 @@
-import { createClient } from "../../utils/supabase/server"; 
+import { createClient } from '../../utils/supabase/server';
 import { redirect } from 'next/navigation';
 import ProfileDashboard from '../components/ProfileDashboard';
 
