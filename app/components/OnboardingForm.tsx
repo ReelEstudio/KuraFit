@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { User, Difficulty, WorkoutFocus, DietType, Equipment, Injury } from '../types';
 import FrequencySelector from './FrequencySelector';
@@ -151,48 +150,65 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete }) => {
 
       <div className="flex-1 p-6 md:p-10 overflow-y-auto max-h-[70vh] custom-scrollbar">
         {/* STEP 0: BIOMETRY */}
-        {currentStep === 0 && (
-          <div className="space-y-6 animate-in slide-in-from-right-4">
-            <header>
-              <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter">Biometría y Perfil</h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Garantía de Privacidad de Datos</p>
-            </header>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" placeholder="Nombre completo" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" value={formData.full_name} onChange={e => update('full_name', e.target.value)} />
-              <input type="email" placeholder="Correo Electrónico" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" value={formData.email} onChange={e => update('email', e.target.value)} />
-              <div className="md:col-span-2 relative">
-                 <input type="tel" placeholder="Número de Celular (Privado)" className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold pl-12" value={formData.phone} onChange={e => update('phone', e.target.value)} />
-                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">📱</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Edad</label>
-                <input type="number" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" value={formData.age} onChange={e => update('age', parseInt(e.target.value))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Peso kg</label>
-                <input type="number" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" value={formData.weight_kg} onChange={e => update('weight_kg', parseInt(e.target.value))} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Altura cm</label>
-                <input type="number" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" value={formData.height_cm} onChange={e => update('height_cm', parseInt(e.target.value))} />
-              </div>
-            </div>
-            {biometryAnalysis && (
-              <div className="bg-slate-900 p-6 rounded-[32px] text-white">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="text-[10px] font-black text-blue-400 uppercase">Análisis IMC</h4>
-                  <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${biometryAnalysis.color}`}>{biometryAnalysis.status}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><p className="text-[8px] text-slate-400 uppercase">IMC Actual</p><p className="text-xl font-black italic">{biometryAnalysis.bmi}</p></div>
-                  <div><p className="text-[8px] text-slate-400 uppercase">Rango Saludable</p><p className="text-xs font-bold text-slate-200">{biometryAnalysis.idealWeight}</p></div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+{currentStep === 0 && (
+  <div className="space-y-6 animate-in slide-in-from-right-4">
+    <header>
+      <h2 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter">Biometría y Perfil</h2>
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Garantía de Privacidad de Datos</p>
+    </header>
+    
+    <div className="space-y-4">
+      {/* Nombre ocupa todo el ancho */}
+      <input 
+        type="text" 
+        placeholder="Nombre completo" 
+        className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold" 
+        value={formData.full_name} 
+        onChange={e => update('full_name', e.target.value)} 
+      />
+      
+      {/* Teléfono ocupa todo el ancho */}
+      <div className="relative">
+         <input 
+           type="tel" 
+           placeholder="Número de Celular (Privado)" 
+           className="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold pl-12" 
+           value={formData.phone} 
+           onChange={e => update('phone', e.target.value)} 
+         />
+         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">📱</span>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-3 gap-3">
+      <div className="space-y-1">
+        <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Edad</label>
+        <input type="number" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" value={formData.age} onChange={e => update('age', parseInt(e.target.value))} />
+      </div>
+      <div className="space-y-1">
+        <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Peso kg</label>
+        <input type="number" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" value={formData.weight_kg} onChange={e => update('weight_kg', parseInt(e.target.value))} />
+      </div>
+      <div className="space-y-1">
+        <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Altura cm</label>
+        <input type="number" className="w-full p-4 bg-slate-50 rounded-2xl font-bold" value={formData.height_cm} onChange={e => update('height_cm', parseInt(e.target.value))} />
+      </div>
+    </div>
+
+    {biometryAnalysis && (
+      <div className="bg-slate-900 p-6 rounded-[32px] text-white">
+        <div className="flex justify-between items-center mb-4">
+          <h4 className="text-[10px] font-black text-blue-400 uppercase">Análisis IMC</h4>
+          <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${biometryAnalysis.color}`}>{biometryAnalysis.status}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><p className="text-[8px] text-slate-400 uppercase">IMC Actual</p><p className="text-xl font-black italic">{biometryAnalysis.bmi}</p></div>
+          <div><p className="text-[8px] text-slate-400 uppercase">Rango Saludable</p><p className="text-xs font-bold text-slate-200">{biometryAnalysis.idealWeight}</p></div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
         {/* STEP 1: GOAL */}
         {currentStep === 1 && (
