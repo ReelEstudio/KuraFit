@@ -1,146 +1,86 @@
-export enum Difficulty {
-  BEGINNER = 'beginner',
-  INTERMEDIATE = 'intermediate',
-  ADVANCED = 'advanced'
-}
-
-export enum Equipment {
-  BODYWEIGHT = 'bodyweight',
-  DUMBBELL = 'dumbbell',
-  BARBELL = 'barbell',
-  MACHINE = 'machine',
-  CABLE = 'cable'
-}
-
-export enum MuscleGroup {
-  CHEST = 'chest',
-  BACK = 'back',
-  LEGS = 'legs',
-  SHOULDERS = 'shoulders',
-  ARMS = 'arms',
-  CORE = 'core'
-}
-
 export enum WorkoutFocus {
-  STRENGTH = 'strength',
-  HYPERTROPHY = 'hypertrophy',
-  METABOLIC = 'metabolic',
-  PERFORMANCE = 'performance'
+  STRENGTH = 'STRENGTH',
+  HYPERTROPHY = 'HYPERTROPHY',
+  METABOLIC = 'METABOLIC',
+  PERFORMANCE = 'PERFORMANCE'
 }
 
 export enum DietType {
-  OMNIVORE = 'omnivore',
-  VEGAN = 'vegan',
-  KETO = 'keto',
-  PALEO = 'paleo',
-  VEGETARIAN = 'vegetarian'
+  OMNIVORE = 'OMNIVORE',
+  VEGAN = 'VEGAN',
+  KETO = 'KETO',
+  PALEO = 'PALEO'
 }
+
+export enum Equipment {
+  BODYWEIGHT = 'BODYWEIGHT',
+  DUMBBELLS = 'DUMBBELLS',
+  BARBELL = 'BARBELL',
+  KETTLEBELL = 'KETTLEBELL',
+  RESISTANCE_BANDS = 'RESISTANCE_BANDS'
+}
+
+export enum Difficulty {
+  BEGINNER = 'BEGINNER',
+  INTERMEDIATE = 'INTERMEDIATE',
+  ADVANCED = 'ADVANCED'
+}
+
+export type MuscleGroup = 'Pecho' | 'Espalda' | 'Piernas' | 'Hombros' | 'Brazos' | 'Core' | 'Full Body' | string;
+export type Injury = 'Hombro' | 'Rodilla' | 'Espalda Baja' | 'Muñeca' | 'Ninguna' | string;
 
 export interface MetricEntry {
-  date: Date;
-  weight_kg: number;
-  body_fat_pct?: number;
-  muscle_mass_kg?: number;
+  date: string;
+  weight: number;
+  fat?: number;
 }
 
-export interface Injury {
+export interface WorkoutExercise {
   id: string;
   name: string;
-  category: 'joint' | 'muscle' | 'chronic';
-  details?: string;
-  is_current: boolean;
-  recovery_time?: string;
+  muscle_target: string;
+  video_id: string;
+  sets: { reps: string; weight_kg: number; completed: boolean }[];
 }
 
-export interface NutritionPlan {
-  protein_g: number;
-  carbs_g: number;
-  fats_g: number;
-  calories: number;
-  key_micros: string[];
-}
-
-export type SessionCompletionStatus = 'full' | 'early';
-
-export interface CompletedSessionRecord {
+export interface WorkoutSession {
   id: string;
-  date: Date;
+  date: string;
   focus: WorkoutFocus;
-  status: SessionCompletionStatus;
+  exercises: WorkoutExercise[];
+  status: 'full' | 'early';
+  created_at: string;
 }
 
 export interface User {
   id: string;
   full_name: string;
-  email: string;
-  phone: string;
-  age: number;
-  weight_kg: number;
-  height_cm: number;
-  fitness_level: Difficulty;
-  goal: WorkoutFocus;
-  diet: DietType;
-  sleep_quality: number;
-  stress_level: number;
-  available_equipment: Equipment[];
+  goal: string;
+  diet_type: DietType;
+  level: Difficulty;
+  nutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  workout_sessions?: WorkoutSession[];
   injuries: Injury[];
-  sessions_per_week?: number;
-  metrics_history: MetricEntry[];
-  nutrition?: NutritionPlan;
-  completed_sessions_count: number;
-  early_finished_count: number;
-  session_history: CompletedSessionRecord[];
+  available_equipment: Equipment[];
 }
 
-export interface Exercise {
-  id: string;
-  name: string;
-  description: string;
-  muscle_target: MuscleGroup;
-  difficulty: Difficulty;
+export interface Exercise extends WorkoutExercise {
   equipment: Equipment[];
   is_compound: boolean;
-  substitute_id?: string;
-  video_id?: string;
 }
 
-export interface WorkoutSet {
-  reps: number;
-  weight_kg: number;
-  completed: boolean;
-}
-
-export interface WorkoutExercise extends Exercise {
-  sets: WorkoutSet[];
-  notes?: string;
-  is_substitute?: boolean;
-  replaced_exercise_name?: string;
-}
-
-export interface WorkoutSession {
-  id: string;
-  date: Date;
-  focus: WorkoutFocus;
-  exercises: WorkoutExercise[];
-  warmup: any[];
-  cooldown: any[];
-  cardio_finisher?: any;
-  is_completed: boolean;
+export interface ProtocolStep {
+  name: string;
+  duration_min: number;
+  description: string;
+  video_id: string;
 }
 
 export interface WeeklyWorkoutPlan {
-  user_id: string;
-  week_number: number;
   sessions: WorkoutSession[];
-}
-
-// ESTA ES LA PARTE QUE CORRIGE EL ERROR DE LA CAPTURA
-export interface ProtocolStep {
-  id?: string;
-  name: string;           // Campo obligatorio para el finisher
-  instruction?: string;
-  description?: string;   // Campo para el finisher
-  duration_min?: number;  // Campo para el finisher
-  duration_seconds?: number;
-  video_id?: string;      // Campo para el finisher
 }
