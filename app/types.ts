@@ -8,7 +8,7 @@ export enum WorkoutFocus {
 export enum DietType {
   OMNIVORE = 'OMNIVORE',
   VEGAN = 'VEGAN',
-  VEGETARIAN = 'VEGETARIAN', // Añadido para que no dé error en OnboardingForm
+  VEGETARIAN = 'VEGETARIAN',
   KETO = 'KETO',
   PALEO = 'PALEO'
 }
@@ -27,6 +27,26 @@ export enum Difficulty {
   ADVANCED = 'ADVANCED'
 }
 
+// NUEVOS TIPOS AÑADIDOS PARA EL WORKOUT PLAYER
+export enum SessionCompletionStatus {
+  FULL = 'full',
+  EARLY = 'early'
+}
+
+export interface WorkoutSet {
+  reps?: number;
+  weight?: number;
+  duration?: number;
+  rest: number;
+}
+
+export interface ProtocolStep {
+  name: string;
+  duration_min: number;
+  description: string;
+  video_id: string;
+}
+
 export type MuscleGroup = string;
 export type Injury = string;
 
@@ -41,15 +61,15 @@ export interface WorkoutExercise {
   name: string;
   muscle_target: string;
   video_id: string;
-  sets: any[];
+  sets: WorkoutSet[]; // Ahora usa el tipo WorkoutSet
 }
 
 export interface WorkoutSession {
   id: string;
   date: string;
   focus: WorkoutFocus;
-  exercises: any[];
-  status: 'full' | 'early';
+  exercises: WorkoutExercise[];
+  status: SessionCompletionStatus; // Ahora usa el enum
   created_at: string;
 }
 
@@ -65,7 +85,7 @@ export interface User {
     carbs: number;
     fat: number;
   };
-  workout_sessions?: any[];
-  injuries: any[];
-  available_equipment: any[];
+  workout_sessions?: WorkoutSession[];
+  injuries: Injury[];
+  available_equipment: Equipment[];
 }
