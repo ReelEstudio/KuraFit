@@ -26,8 +26,8 @@ export enum Difficulty {
   ADVANCED = 'ADVANCED'
 }
 
-export type MuscleGroup = 'Pecho' | 'Espalda' | 'Piernas' | 'Hombros' | 'Brazos' | 'Core' | 'Full Body' | string;
-export type Injury = 'Hombro' | 'Rodilla' | 'Espalda Baja' | 'Muñeca' | 'Ninguna' | string;
+export type MuscleGroup = string;
+export type Injury = string;
 
 export interface MetricEntry {
   date: string;
@@ -40,14 +40,14 @@ export interface WorkoutExercise {
   name: string;
   muscle_target: string;
   video_id: string;
-  sets: { reps: string; weight_kg: number; completed: boolean }[];
+  sets: any[];
 }
 
 export interface WorkoutSession {
   id: string;
   date: string;
   focus: WorkoutFocus;
-  exercises: WorkoutExercise[];
+  exercises: any[];
   status: 'full' | 'early';
   created_at: string;
 }
@@ -64,23 +64,7 @@ export interface User {
     carbs: number;
     fat: number;
   };
-  workout_sessions?: WorkoutSession[];
-  injuries: Injury[];
-  available_equipment: Equipment[];
-}
-
-export interface Exercise extends WorkoutExercise {
-  equipment: Equipment[];
-  is_compound: boolean;
-}
-
-export interface ProtocolStep {
-  name: string;
-  duration_min: number;
-  description: string;
-  video_id: string;
-}
-
-export interface WeeklyWorkoutPlan {
-  sessions: WorkoutSession[];
+  workout_sessions?: any[];
+  injuries: any[];
+  available_equipment: any[];
 }
