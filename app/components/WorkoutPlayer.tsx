@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { 
   WorkoutSession, 
-  SessionCompletionStatus,
-  ProtocolStep
+  SessionCompletionStatus
 } from '../types';
 
 interface WorkoutPlayerProps {
@@ -11,23 +10,6 @@ interface WorkoutPlayerProps {
   onComplete: (status: SessionCompletionStatus) => void;
   onExit: () => void;
 }
-
-const VideoEmbed = ({ videoId }: { videoId?: string }) => (
-  <div className="aspect-video w-full bg-slate-900 rounded-[30px] overflow-hidden mb-6 shadow-inner">
-    {videoId ? (
-      <iframe
-        className="w-full h-full"
-        src={`https://www.youtube.com/embed/${videoId}`}
-        title="Exercise Video"
-        allowFullScreen
-      />
-    ) : (
-      <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold uppercase text-xs">
-        Video no disponible
-      </div>
-    )}
-  </div>
-);
 
 const WorkoutPlayer = ({ session, onComplete, onExit }: WorkoutPlayerProps) => {
   const [showExitModal, setShowExitModal] = useState(false);
@@ -50,13 +32,13 @@ const WorkoutPlayer = ({ session, onComplete, onExit }: WorkoutPlayerProps) => {
 
         <div className="bg-white p-10 rounded-[50px] shadow-xl border border-slate-100 text-center">
           <h2 className="text-4xl font-black italic uppercase mb-8 tracking-tighter">
-            Sesión Iniciada
+            Sesión Preparada
           </h2>
-          <p className="text-slate-500 mb-10 font-medium">Sigue las instrucciones de tu plan personalizado.</p>
+          <p className="text-slate-500 mb-10 font-medium italic">Haz clic abajo para completar esta prueba de sistema.</p>
           
           <button 
             onClick={() => onComplete(SessionCompletionStatus.FULL)}
-            className="w-full py-8 bg-[#1a1f2e] text-white rounded-[35px] font-black italic uppercase tracking-widest hover:bg-slate-800 transition-all"
+            className="w-full py-8 bg-[#1a1f2e] text-white rounded-[35px] font-black italic uppercase tracking-widest hover:bg-slate-800 transition-all shadow-2xl"
           >
             Finalizar Entrenamiento →
           </button>
@@ -72,7 +54,7 @@ const WorkoutPlayer = ({ session, onComplete, onExit }: WorkoutPlayerProps) => {
               <div className="space-y-3">
                 <button 
                   onClick={() => onComplete(SessionCompletionStatus.EARLY)}
-                  className="w-full py-5 bg-orange-600 text-white font-black rounded-3xl uppercase italic text-xs tracking-widest shadow-lg shadow-orange-100"
+                  className="w-full py-5 bg-orange-600 text-white font-black rounded-3xl uppercase italic text-xs tracking-widest"
                 >
                   Terminar Ahora
                 </button>
