@@ -37,7 +37,7 @@ export interface WorkoutSet {
   weight?: number;
   duration?: number;
   rest: number;
-  completed?: boolean; // <--- AÑADIDO: Necesario para WorkoutPlayer.tsx:44
+  completed?: boolean;
 }
 
 export interface ProtocolStep {
@@ -45,7 +45,7 @@ export interface ProtocolStep {
   duration_min: number;
   description: string;
   video_id: string;
-  completed?: boolean; // <--- AÑADIDO: Necesario para controlar el progreso del calentamiento
+  completed?: boolean;
 }
 
 export type MuscleGroup = string;
@@ -75,8 +75,8 @@ export interface WorkoutSession {
   focus: WorkoutFocus;
   exercises: WorkoutExercise[];
   warmup: ProtocolStep[];
-  cardio_finisher?: ProtocolStep; 
-  cooldown: ProtocolStep[]; 
+  cardio_finisher?: ProtocolStep;
+  cooldown: ProtocolStep[];
   status: SessionCompletionStatus;
   created_at: string;
 }
