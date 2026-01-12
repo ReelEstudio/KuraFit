@@ -31,25 +31,19 @@ export default function OnboardingPage() {
           .single();
 
         if (profile) {
-          // BLINDAJE TOTAL: Mapeo manual para asegurar que no haya nulos
+          // Mapeo manual para asegurar que no haya nulos y coincida con el tipo User
           const fullUser: any = {
             ...profile,
             email: session.user.email,
             full_name: profile.full_name || 'Atleta',
+            level: profile.fitness_level || Difficulty.BEGINNER, // Sincronizamos con 'level' de types.ts
             weight_kg: profile.weight || profile.weight_kg || 70,
             height_cm: profile.height || profile.height_cm || 175,
-            age: profile.age || 30,
-            gender: profile.gender || 'other',
-            fitness_level: profile.fitness_level || Difficulty.BEGINNER,
             goal: profile.goal || WorkoutFocus.HYPERTROPHY,
-            diet: profile.diet || DietType.OMNIVORE,
-            stress_level: profile.stress_level || 3,
-            sleep_quality: profile.sleep_quality || 3,
+            diet_type: profile.diet || DietType.OMNIVORE,
             injuries: Array.isArray(profile.injuries) ? profile.injuries : [],
-            metrics_history: Array.isArray(profile.metrics_history) ? profile.metrics_history : [],
-            completed_sessions_count: profile.completed_sessions_count || 0,
-            early_finished_count: profile.early_finished_count || 0,
-            nutrition: profile.nutrition || null
+            workout_sessions: Array.isArray(profile.workout_sessions) ? profile.workout_sessions : [],
+            nutrition: profile.nutrition || { calories: 2000, protein: 150, carbs: 200, fat: 60 }
           };
           
           setUser(fullUser);
@@ -66,27 +60,27 @@ export default function OnboardingPage() {
     initApp();
   }, [router]);
 
-  const handleOnboardingComplete = async (userData: User) => {
+  // Usamos 'any' en userData para evitar que TS se queje de fitness_level vs level durante el guardado
+  const handleOnboardingComplete = async (userData: any) => {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // Aseguramos que guardamos con los nombres de columna correctos de tu DB
       const { error } = await supabase.from('profiles').upsert({
         id: session.user.id,
         full_name: userData.full_name,
         goal: userData.goal,
-        fitness_level: userData.fitness_level,
-        weight: userData.weight_kg, // Usamos 'weight' si así está en tu DB
+        fitness_level: userData.fitness_level || userData.level, 
+        weight: userData.weight_kg,
         height: userData.height_cm,
-        diet: userData.diet,
+        diet: userData.diet || userData.diet_type,
         age: userData.age,
         updated_at: new Date().toISOString()
       });
 
       if (error) throw error;
-      window.location.reload(); // Recarga limpia para evitar errores de estado
+      window.location.reload(); 
     } catch (e: any) { 
       alert("Error al guardar: " + e.message); 
     } finally {
@@ -97,7 +91,7 @@ export default function OnboardingPage() {
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-white">
       <div className="text-center animate-pulse">
-        <p className="font-black uppercase italic text-slate-900">Cargando Sistema...</p>
+        <p className="font-black uppercase italic text-slate-900 text-xs tracking-widest">Cargando Sistema...</p>
       </div>
     </div>
   );
@@ -106,7 +100,12 @@ export default function OnboardingPage() {
     <main className="max-w-6xl mx-auto p-4">
       {step === 'legal' && <LegalDisclaimer onAccept={() => setStep('onboarding')} />}
       {step === 'onboarding' && <OnboardingForm onComplete={handleOnboardingComplete} />}
-      {step === 'dashboard' && user && <ProfileDashboard user={user} onAddMetric={() => {}} />}
+      {step === 'dashboard' && user && (
+        <ProfileDashboard 
+          user={user} 
+          onAddMetric={async () => {}} 
+        />
+      )}
     </main>
   );
 }

@@ -48,19 +48,6 @@ export interface ProtocolStep {
   completed?: boolean;
 }
 
-export type MuscleGroup = string;
-
-export interface Injury {
-  name: string;
-  severity?: 'low' | 'medium' | 'high';
-}
-
-export interface MetricEntry {
-  date: string;
-  weight: number;
-  fat?: number;
-}
-
 export interface WorkoutExercise {
   id: string;
   name: string;
@@ -81,12 +68,18 @@ export interface WorkoutSession {
   created_at: string;
 }
 
+export interface Injury {
+  name: string;
+  severity?: 'low' | 'medium' | 'high';
+}
+
 export interface User {
   id: string;
   full_name: string;
   goal: string;
+  level: Difficulty; // El campo principal
+  fitness_level?: Difficulty; // Añadido para compatibilidad con Onboarding
   diet_type: DietType;
-  level: Difficulty;
   nutrition: {
     calories: number;
     protein: number;
@@ -96,4 +89,15 @@ export interface User {
   workout_sessions?: WorkoutSession[];
   injuries: Injury[];
   available_equipment: Equipment[];
+  // Campos extra que Onboarding podría estar enviando
+  weight_kg?: number;
+  height_cm?: number;
+}
+// Añade esto al final de types.ts para resolver errores en el motor de entrenamiento
+export type MuscleGroup = string;
+
+export interface MetricEntry {
+  date: string;
+  weight: number;
+  fat?: number;
 }
