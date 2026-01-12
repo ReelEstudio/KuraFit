@@ -29,14 +29,11 @@ const FrequencySelector = ({ user, onSelect, selectedFreq }: FrequencySelectorPr
       </div>
 
       {selectedFreq > 4 && user.injuries && user.injuries.length > 0 && (
-        <div className="p-6 bg-amber-50 border border-amber-100 rounded-[30px] flex gap-4 items-center animate-in slide-in-from-top duration-500">
+        <div className="p-6 bg-amber-50 border border-amber-100 rounded-[30px] flex gap-4 items-center animate-pulse">
           <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 font-bold">!</div>
-          <p className="text-amber-700 text-xs font-medium">
-            {"Nota: Estás superando la frecuencia recomendada para tu lesión: "}
-            <span className="font-black uppercase tracking-tight">
-              {user.injuries[0]?.name || "lesión registrada"}
-            </span>
-            {"."}
+          <p className="text-amber-700 text-xs font-medium leading-relaxed">
+            Aviso de Seguridad Crítico: Estás seleccionando una frecuencia superior a la recomendada para tu perfil médico. 
+            Esto incrementa el riesgo de agravamiento de tu lesión: <b className="uppercase font-black">{user.injuries[0].name}</b>.
           </p>
         </div>
       )}

@@ -34,7 +34,7 @@ const WorkoutPlayer = ({ session, onComplete, onExit }: WorkoutPlayerProps) => {
           <h2 className="text-4xl font-black italic uppercase mb-8 tracking-tighter">
             Sesión Preparada
           </h2>
-          <p className="text-slate-500 mb-10 font-medium italic">Haz clic abajo para completar esta prueba de sistema.</p>
+          <p className="text-slate-500 mb-10 font-medium">Haz clic abajo para completar esta prueba de sistema.</p>
           
           <button 
             onClick={() => onComplete(SessionCompletionStatus.FULL)}
@@ -49,7 +49,7 @@ const WorkoutPlayer = ({ session, onComplete, onExit }: WorkoutPlayerProps) => {
             <div className="bg-white rounded-[50px] p-12 max-w-sm w-full shadow-2xl text-center">
               <h3 className="text-3xl font-black italic uppercase mb-4">¿Terminar ahora?</h3>
               <p className="text-xs text-slate-400 mb-8 font-bold uppercase tracking-widest leading-relaxed">
-                Se guardará como "Finalización Temprana" en tu historial.
+                Se guardará como &quot;Finalización Temprana&quot; en tu historial.
               </p>
               <div className="space-y-3">
                 <button 
